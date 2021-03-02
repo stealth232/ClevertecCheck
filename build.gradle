@@ -61,18 +61,7 @@ def aspectj = { sourceFileSet, destDir->
 //        }
 //    }
 }
-compileJava{
-    doLast{
-        aspectj (project.sourceSets.aspects,
-                "$buildDir/classes/java/main")
-    }
-}
-//bootRun.doFirst{
-//    configurations.runtimeAgent.each{
-//        File jarFile ->
-//            jvmArgs "-javaagent:${jarFile.absolutePath}"
-//    }
-//}
+
 project.ext{
     junitVersion = '5.7.0'
     aspectjVersion = '1.8.12'
@@ -134,7 +123,18 @@ publishing {
 test {
     useJUnitPlatform()
 }
-
+compileJava{
+    doLast{
+        aspectj (project.sourceSets.aspects,
+                "$buildDir/classes/java/main")
+    }
+}
+//bootRun.doFirst{
+//    configurations.runtimeAgent.each{
+//        File jarFile ->
+//            jvmArgs "-javaagent:${jarFile.absolutePath}"
+//    }
+//}
 task downloadFile(type: Download) {
     src 'https://github.com/stebadmitriy/files/raw/main/Clevertec_Template.pdf'
     dest 'C:\\Users\\Stealth\\IdeaProjects\\NewCheck\\src\\main\\resources\\templates'

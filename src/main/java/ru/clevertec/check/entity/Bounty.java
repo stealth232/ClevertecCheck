@@ -48,4 +48,9 @@ public class Bounty extends Product {
     public int hashCode() {
         return Objects.hash(itemId, name, cost, stock);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

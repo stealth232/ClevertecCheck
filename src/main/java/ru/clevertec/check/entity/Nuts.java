@@ -32,4 +32,9 @@ public class Nuts extends Product {
         stock = x;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

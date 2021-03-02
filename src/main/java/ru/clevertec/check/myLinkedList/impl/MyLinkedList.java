@@ -3,6 +3,7 @@ package ru.clevertec.check.myLinkedList.impl;
 import ru.clevertec.check.myLinkedList.MyLinked;
 
 public class MyLinkedList<E> implements MyLinked<E> {
+
     private Node<E> first;
     private Node<E> last;
     int size;
@@ -176,6 +177,17 @@ public class MyLinkedList<E> implements MyLinked<E> {
         return null;
     }
 
-
-
+    @Override
+    public String toString() { StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(MyLinkedList.class.getSimpleName());
+        stringBuilder.append("[values=");
+        for (int i = 0; i < size; i++) {
+            stringBuilder.append(get(i));
+                if(i < size - 1){
+                    stringBuilder.append(", ");
+                }
+            }
+        stringBuilder.append("]");
+        return stringBuilder.toString();
+    }
 }

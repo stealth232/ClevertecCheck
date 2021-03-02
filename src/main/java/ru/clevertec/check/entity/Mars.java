@@ -30,4 +30,9 @@ public class Mars extends Product {
     public void setStock(boolean x) {
         stock = x;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
