@@ -4,10 +4,10 @@
     <Properties>
         <property name="log_dir">c:/Users/stealth/IdeaProjects/NewCheck/logs</property>
         <property name="pattern_console">
-            %d{ABSOLUTE} %-5level %logger{1} - %msg%n
+            %d{ABSOLUTE} %-5level  - %msg%n
         </property>
         <property name="pattern_text_file">
-            %d{ISO8601} [%t] %-5level %logger{5} - %msg%n
+            %d{ISO8601} [%t] %-5level - %msg%n
         </property>
         <property name="pattern_log_dir">
             logs/${date:yyyy-MM-dd}%d{yyyy-MM-dd_HH-mm}_%i.log

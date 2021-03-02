@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+<aspectj>
+    <weaver options="-verbose -showWeaveInfo">
+        <include within="ru.clevertec.check..*"/>
+    </weaver>
+    <aspects>
+        <aspect name="ru.clevertec.aop.aspects.LogAspect"/>
+    </aspects>
+</aspectj>
