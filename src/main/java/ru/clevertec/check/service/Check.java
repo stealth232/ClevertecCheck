@@ -1,5 +1,6 @@
 package ru.clevertec.check.service;
 
+import ru.clevertec.check.entities.product.Order;
 import ru.clevertec.check.entities.parameters.ProductParameters;
 import ru.clevertec.check.exception.ProductException;
 import ru.clevertec.check.observer.Publisher;
@@ -19,4 +20,6 @@ public interface Check {
     Publisher getPublisher();
 
     StringBuilder pdfCheck(List<ProductParameters> products);
+
+    Order getOrder(List<ProductParameters> list) throws ProductException;
 }

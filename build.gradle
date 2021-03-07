@@ -26,7 +26,11 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    compileOnly group: 'javax', name: 'javaee-api', version: '8.0.1'
+    compileOnly group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+    //implementation group: 'javax.servlet', name: 'jstl', version: '1.2'
+    implementation 'jstl:jstl:1.2'
+    compileOnly 'org.apache.tomcat:tomcat-servlet-api:9.0.39'
     implementation 'com.itextpdf:itextpdf:5.5.13.2'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
@@ -95,5 +99,6 @@ task downloadFile(type: Download) {
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: 'java'
 apply plugin: 'de.undercouch.download'
+apply plugin: 'war'
 build.dependsOn downloadFile
 

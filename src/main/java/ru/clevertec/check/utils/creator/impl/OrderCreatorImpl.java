@@ -27,7 +27,7 @@ public class OrderCreatorImpl implements OrderCreator {
         String[] temp;
         String key;
         int value;
-        int repositorySize = repository.getSize() + 1;
+        int repositorySize = repository.getSize();
         try {
             for (int i = 0; i <= list.size() - 1; i++) {
                 temp = list.get(i).strip().split(QUANTITY_DELIMITER);
@@ -36,10 +36,11 @@ public class OrderCreatorImpl implements OrderCreator {
                     if (list.size() == 0) {
                         throw new ProductException(PLEASE);
                     }
-                    if (!temp[0].equals(CARD) && repositorySize < Integer.parseInt(temp[0])) {
-                        throw new ProductException("There are only " + repositorySize + " products in our test store. " +
-                                "Please try again");
-                    } else {
+//                    if (!temp[0].equals(CARD) && repositorySize < Integer.parseInt(temp[0])) {
+//                        throw new ProductException("There are only " + repositorySize + " products in our test store. " +
+//                                "Please try again");
+//                    }
+                    else {
                         value = Integer.parseInt(temp[1]);
                         map.merge(key, value, bFunc);
                     }

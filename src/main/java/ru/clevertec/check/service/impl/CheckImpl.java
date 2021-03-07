@@ -9,7 +9,9 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 import ru.clevertec.check.annotations.log.LogMe;
 import ru.clevertec.check.dao.Repository;
-import ru.clevertec.check.entities.Card;
+import ru.clevertec.check.entities.product.Card;
+import ru.clevertec.check.entities.product.Order;
+import ru.clevertec.check.entities.product.SingleProduct;
 import ru.clevertec.check.entities.parameters.ProductParameters;
 import ru.clevertec.check.exception.ProductException;
 import ru.clevertec.check.observer.Publisher;
@@ -17,6 +19,7 @@ import ru.clevertec.check.service.Check;
 
 import javax.mail.MessagingException;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,9 @@ public class CheckImpl implements Check {
     private Publisher publisher = new Publisher(CHECK_WAS_PRINTED_IN_PDF, CHECK_WAS_PRINTED_IN_TXT, CHECK_HAS_NOT_PRINTED);
     private Map<String, Integer> map;
     private Repository repository = Repository.getInstance();
+    private double totalPriceProduct;
+    private double totalPrice;
+    private double discount;
 
     public CheckImpl(Map<String, Integer> map) {
         this.map = map;
@@ -99,24 +105,20 @@ public class CheckImpl implements Check {
             }
         }
         return sb;
-
     }
 
     @Override
     public StringBuilder htmlCheck(List<ProductParameters> list) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         Date date = new Date();
-        Card card = new Card(0);
-        sb.append(HTML_OPEN).
+        Card card = null;
+        stringBuilder.append(HTML_OPEN).
                 append("<head><h2><pre>        CASH RECEIPT</pre></h2></head>").
                 append("<pre>        supermarket 'The Two Geese'</pre> ").
                 append(String.format("<pre>       %s </pre>    ", date.toString())).
                 append("<h3><pre>QTY DESCRIPTION          PRICE   TOTAL </pre></h3>");
         int key;
         int quantity;
-        double totalPriceProduct;
-        double totalPrice = 0;
-        double discount = 0;
         int repositorySize = repository.getSize();
         String line;
         for (Map.Entry<String, Integer> entry : map.entrySet()
@@ -135,38 +137,41 @@ public class CheckImpl implements Check {
                                 list.get(i).getName(), list.get(i).getCost(), totalPriceProduct);
                         totalPrice += totalPriceProduct;
                         discount += list.get(i).getCost() * quantity - totalPriceProduct;
-                        sb.append(line);
+                        stringBuilder.append(line);
                     }
                 }
             } else {
                 card = new Card(entry.getValue());
             }
         }
-        sb.append(TRANSFER);
+        stringBuilder.append(TRANSFER_HTML).
+                append(getCard(card)).
+                append(HTML_CLOSE);
+        return stringBuilder;
+    }
+
+    private StringBuilder getCard(Card card) {
+        StringBuilder stringBuilder = new StringBuilder();
         if (card.getNumber() == CARD_RANGE_0) {
-            sb.append("<pre>No Discount Card </pre>");
-            sb.append(String.format(DISCOUNT_HTML, discount));
-            sb.append(String.format(PRICE_HTML, totalPrice));
+            stringBuilder.append("<pre>No Discount Card </pre>").
+                    append(String.format(DISCOUNT_HTML, discount)).
+                    append(String.format(PRICE_HTML, totalPrice));
         } else {
             if (card.getNumber() > CARD_RANGE_0 && card.getNumber() < CARD_RANGE_100) {
-                sb.append("<pre>Your Card with 3% Discount: </pre>" + card.getNumber());
-                sb.append(String.format(DISCOUNT_HTML, discount + totalPrice * PERCENT3));
-                sb.append(String.format(PRICE_HTML, totalPrice * PERCENT97));
-            }
-            if (card.getNumber() >= CARD_RANGE_100 && card.getNumber() < CARD_RANGE_1000) {
-                sb.append("<pre>Your Card with 4% Discount: </pre>" + card.getNumber());
-                sb.append(String.format(DISCOUNT_HTML, discount + totalPrice * PERCENT4));
-                sb.append(String.format(PRICE_HTML, totalPrice * PERCENT96));
-            }
-            if (card.getNumber() >= CARD_RANGE_1000) {
-                sb.append("<pre>Your Card with 5% Discount: </pre>" + card.getNumber());
-                sb.append(String.format(DISCOUNT_HTML, discount + totalPrice * PERCENT5));
-                sb.append(String.format(PRICE_HTML, totalPrice * PERCENT95));
+                stringBuilder.append("<pre>Your Card with 3% Discount: </pre>" + card.getNumber()).
+                        append(String.format(DISCOUNT_HTML, discount + totalPrice * PERCENT3)).
+                        append(String.format(PRICE_HTML, totalPrice * PERCENT97));
+            } else if (card.getNumber() >= CARD_RANGE_100 && card.getNumber() < CARD_RANGE_1000) {
+                stringBuilder.append("<pre>Your Card with 4% Discount: </pre>" + card.getNumber()).
+                        append(String.format(DISCOUNT_HTML, discount + totalPrice * PERCENT4)).
+                        append(String.format(PRICE_HTML, totalPrice * PERCENT96));
+            } else if (card.getNumber() >= CARD_RANGE_1000) {
+                stringBuilder.append("<pre>Your Card with 5% Discount: </pre>" + card.getNumber()).
+                        append(String.format(DISCOUNT_HTML, discount + totalPrice * PERCENT5)).
+                        append(String.format(PRICE_HTML, totalPrice * PERCENT95));
             }
         }
-        sb.append(HTML_CLOSE);
-        return sb;
-
+        return stringBuilder;
     }
 
     @Override
@@ -281,4 +286,83 @@ public class CheckImpl implements Check {
         return publisher;
     }
 
+    public List<SingleProduct> getSingleProducts(List<ProductParameters> list) throws ProductException {
+        SingleProduct singleProduct;
+        List<SingleProduct> products = new ArrayList<>();
+        int repositorySize = repository.getSize();
+        for (Map.Entry<String, Integer> entry : map.entrySet()
+        ) {
+            if (!entry.getKey().equals(CARD)) {
+                for (int i = 0; i < repositorySize; i++) {
+                    int key = Integer.parseInt(entry.getKey());
+                    if (key == i + 1) {
+                        int quantity = entry.getValue();
+                        totalPriceProduct = list.get(i).getCost() * quantity;
+                        singleProduct = new SingleProduct(quantity, list.get(i).getName(),
+                                list.get(i).getCost(), totalPriceProduct, repository.getId(i + 1));
+                        products.add(singleProduct);
+                    }
+                }
+            }
+        }
+        return getStockPrice(products);
+    }
+
+    @Override
+    public Order getOrder(List<ProductParameters> list) throws ProductException {
+        List<SingleProduct> products = getSingleProducts(list);
+        Card card = null;
+        double totalPriceWODiscount = 0;
+        double cardPercent = 0;
+        double totalPrice = 0;
+        double totalDiscount;
+        for (Map.Entry<String, Integer> entry : map.entrySet()
+        ) {
+            if (entry.getKey().equals(CARD)) {
+                card = new Card(entry.getValue());
+                cardPercent = getPercent(card);
+            }
+            else{
+                card = new Card(0);
+                cardPercent = 1;
+            }
+        }
+        for (SingleProduct product : products
+        ) {
+            totalPriceWODiscount += product.getQuantity() * product.getPrice();
+            totalPrice += product.getTotalPrice();
+        }
+        totalPrice = totalPrice * cardPercent;
+        totalDiscount = totalPriceWODiscount - totalPrice;
+        return new Order(products, card, cardPercent, totalDiscount, totalPrice);
+    }
+
+    private double getPercent(Card card) {
+        int number = card.getNumber();
+        if (number == CARD_RANGE_0) {
+            return 1;
+        } else {
+            if (number > CARD_RANGE_0 && number < CARD_RANGE_100) {
+                return PERCENT97;
+            } else if (number >= CARD_RANGE_100 && number < CARD_RANGE_1000) {
+                return PERCENT96;
+            } else if (number >= CARD_RANGE_1000) {
+                return PERCENT95;
+            }
+        }
+        return 1;
+    }
+
+    private List<SingleProduct> getStockPrice(List<SingleProduct> list) {
+        List<SingleProduct> discountedProducts = new ArrayList<>();
+        for (SingleProduct product : list) {
+            if (product.getQuantity() >= 5 && product.getProduct().isStock()) {
+                product.setTotalPrice(product.getTotalPrice() * PERCENT90);
+                discountedProducts.add(product);
+            } else {
+                discountedProducts.add(product);
+            }
+        }
+        return discountedProducts;
+    }
 }

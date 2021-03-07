@@ -1,4 +1,4 @@
-package ru.clevertec.check.entities;
+package ru.clevertec.check.entities.product;
 
 import ru.clevertec.check.entities.parameters.ProductParameters;
 
@@ -14,7 +14,11 @@ public class Product implements ProductParameters {
         this.cost = cost;
         this.stock = stock;
     }
-
+    public Product(String name, double cost, boolean stock) {
+        this.name = name;
+        this.cost = cost;
+        this.stock = stock;
+    }
     public void setItemId(int itemId) {
         this.itemId = itemId;
     }

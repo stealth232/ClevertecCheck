@@ -10,7 +10,6 @@ import ru.clevertec.check.service.Check;
 import ru.clevertec.check.service.impl.CheckImpl;
 import ru.clevertec.check.utils.creator.OrderCreator;
 import ru.clevertec.check.utils.creator.impl.OrderCreatorImpl;
-import ru.clevertec.check.utils.mylinkedlist.MyLinkedList;
 import ru.clevertec.check.utils.parser.ArgsParser;
 import ru.clevertec.check.utils.parser.impl.ArgsParserImpl;
 import ru.clevertec.check.utils.proxy.ProxyFactory;
@@ -20,29 +19,18 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) throws ProductException {
-        args = new String[]{"1-40", "2-70", "3-120", "4-100", "5-100", "6-35", "6-35", "card-4567"};
-        //args = new String[]{"src\\main\\resources\\file.txt"};
-
-        Repository repository = Repository.getInstance();
-        repository.removeTable();
-        repository.createTable();
-        repository.fillRepository();
-        List<ProductParameters> products = new MyLinkedList<>();
-        List<ProductParameters> productsProxy = (List<ProductParameters>) ProxyFactory.doProxy(products);
-        for (int i = 1; i < repository.getSize() + 1; i++) {
-            productsProxy.add(repository.getId(i));
-        }
+        args = new String[]{"1-40", "2-70", "3-120", "4-100", "5-100", "6-35", "6-35", "card-345"};
+        // args = new String[]{"src\\main\\resources\\file.txt"};
+        List<ProductParameters> products = Repository.getProductList();
         ArgsParser argsParser = (ArgsParser) ProxyFactory.doProxy(new ArgsParserImpl());
         OrderCreator orderCreator = (OrderCreator) ProxyFactory.doProxy(new OrderCreatorImpl());
         List<String> list = argsParser.parsParams(args);
         Check check = new CheckImpl(orderCreator.makeOrder(list));
         Check checkProxy = (Check) ProxyFactory.doProxy(check);
-        StringBuilder stringBuilder = checkProxy.showCheck(products);
-        StringBuilder stringBuilderPDF = checkProxy.pdfCheck(products);
-        System.out.println(stringBuilder);
+        System.out.println(checkProxy.showCheck(products));
         check.getPublisher().subscribe(State.CHECK_WAS_PRINTED_IN_TXT, new Consoler());
         check.getPublisher().subscribe(State.CHECK_WAS_PRINTED_IN_PDF, new Emailer());
-        checkProxy.printCheck(stringBuilder);
-        checkProxy.printPDFCheck(stringBuilderPDF);
+        checkProxy.printCheck(checkProxy.showCheck(products));
+        checkProxy.printPDFCheck(checkProxy.pdfCheck(products));
     }
 }

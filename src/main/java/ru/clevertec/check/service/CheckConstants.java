@@ -7,8 +7,18 @@ public class CheckConstants {
     public static final String INDENT = "\n" + "\n" + "\n";
     public static final String DOUBLE_INDENT = "\n\n";
 
+    public static final String SHOP = "/shop";
+    public static final String CHECK = "/check";
+    public static final String PAGES = "/pages";
+    public static final String CHECK_JSP = "/check.jsp";
+
+
     public static final String CARD = "card";
+    public static final String URL_CARD = "card-";
+    public static final String URL_DELIMETER = "-";
+    public static final String TEXT_HTML = "text/html";
     public static final String TRANSFER = "\n========================================= \n";
+    public static final String TRANSFER_HTML = "\n==================================== \n";
     public static final String TRANSFER_PDF = "=========================================";
     public static final String TRANSPORT = "                                         ";
     public static final String TRANSPORT_HALF =  "                   ";
@@ -22,6 +32,7 @@ public class CheckConstants {
     public static final String PRICE_HTML = "<h4><pre><h2>Total Price %17.2f</pre></h4>";
     public static final String HTML_OPEN = "<html>";
     public static final String HTML_CLOSE = "</html>";
+    public static final String ZERO =  "0";
     public static final Integer PAGENUMBER = 1;
     public static final Integer CARD_RANGE_0 = 0;
     public static final Integer CARD_RANGE_100 = 100;

@@ -1,6 +1,6 @@
 package ru.clevertec.check.utils.builders;
 
-import ru.clevertec.check.entities.Product;
+import ru.clevertec.check.entities.product.Product;
 
 public class ProductBuilder implements Builder {
     private int itemId;

@@ -1,4 +1,4 @@
-package ru.clevertec.check.entities;
+package ru.clevertec.check.entities.product;
 
 public class Card {
     private int number;
