@@ -3,6 +3,7 @@ plugins {
     id 'application'
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "de.undercouch.download" version "4.1.1"
+    id 'war'
 }
 
 configurations {
@@ -22,74 +23,58 @@ repositories {
     }
 }
 
+ext {
+    junitVersion = '5.7.0'
+    springVersion = '5.3.4'
+    springSecurityVersion = '5.4.5'
+    log4jVersion = '2.14.0'
+    aspectjVersion = '1.9.6'
+}
+
 dependencies {
-    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    compileOnly group: 'javax', name: 'javaee-api', version: '8.0.1'
-    compileOnly group: 'javax.servlet', name: 'servlet-api', version: '2.5'
-    //implementation group: 'javax.servlet', name: 'jstl', version: '1.2'
-    implementation 'jstl:jstl:1.2'
-    compileOnly 'org.apache.tomcat:tomcat-servlet-api:9.0.39'
+//    implementation 'org.springframework.boot:spring-boot-starter'
+//    //implementation 'org.springframework.boot:spring-boot-starter-web'
+//    //implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    implementation group: 'org.springframework', name: 'spring-core', version: "${springVersion}"
+    implementation group: 'org.springframework', name: 'spring-context', version: "${springVersion}"
+    implementation group: 'org.springframework', name: 'spring-web', version: "${springVersion}"
+    implementation group: 'org.springframework', name: 'spring-webmvc', version: "${springVersion}"
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: "${springVersion}"
+    implementation group: 'org.springframework', name: 'spring-aop', version: "${springVersion}"
+    implementation group: 'org.springframework.security', name: 'spring-security-config', version: "${springSecurityVersion}"
+    implementation group: 'org.springframework.security', name: 'spring-security-web', version: "${springSecurityVersion}"
+
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: "${log4jVersion}"
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4jVersion}"
+
+    implementation group: 'org.hibernate', name: 'hibernate-validator', version: '6.2.0.Final'
+    implementation group: 'org.thymeleaf', name: 'thymeleaf-spring5', version: '3.0.12.RELEASE'
+    implementation group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-springsecurity5', version: '3.0.4.RELEASE'
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: '2.3.2'
     implementation 'com.itextpdf:itextpdf:5.5.13.2'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
-    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
     compile group: 'javax.mail', name: 'mail', version: '1.4.1'
     compile group: 'org.aspectj', name: 'aspectjrt', version: '1.9.6'
     compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.6'
     ajc 'org.aspectj:aspectjtools:1.9.6'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
-}
+    compile group: 'org.aspectj', name: 'aspectjrt', version: "${aspectjVersion}"
+    compile group: 'org.aspectj', name: 'aspectjweaver', version: "${aspectjVersion}"
 
-sourceSets {
-    aspects{
-        java{
-            srcDir "src/aspects/aspectj"
-            include '**/*.java'
-            compileClasspath = sourceSets.main.compileClasspath
-            runtimeClasspath = sourceSets.main.runtimeClasspath
-        }
-    }
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    compileOnly group: 'javax', name: 'javaee-api', version: '8.0.1'
+
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.2'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-jar{
-    manifest{
-        attributes 'Main-Class':'ru.clevertec.check.main.Main',
-                "Multi-Release": true
-    }
-}
-
-def aspectj = { sourceFileSet, destDir->
-
-    ant.taskdef(
-            resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
-            classpath: configurations.ajc.asPath)
-    ant.iajc(maxmem: "1024m",
-            fork: "true",
-            Xlint: "warning",
-            classpath: sourceFileSet.runtimeClasspath.asPath,
-            destDir: destDir,
-            source: project.sourceCompatibility,
-            target: project.targetCompatibility) {
-        sourceroots {
-            sourceFileSet.java.srcDirs.each { dir ->
-                if (file(dir).exists()) {
-                    pathelement(path: dir)
-                }
-            }
-        }
-    }
-}
-
-compileJava {
-    doLast {
-        aspectj(project.sourceSets.aspects, "$buildDir/classes/java/main")
-    }
 }
 
 task downloadFile(type: Download) {

@@ -1,54 +1,9 @@
 package ru.clevertec.check.controller.constants;
 
 public class ServletConstants {
-    public static final String SHOP = "/shop";
-    public static final String CHECK = "/check";
-    public static final String ADMIN_COST = "/admin_cost";
-    public static final String PAGES = "/pages";
-    public static final String ERRORS = "/errors";
-    public static final String ADMIN = "/admin";
-    public static final String AUTH = "/auth";
-    public static final String CREATE = "/create";
-    public static final String ADMIN_PRODUCT_MESSAGE = "/admin_message_product.jsp";
-    public static final String ADMIN_MESSAGE = "/admin_message.jsp";
-    public static final String CHECK_JSP = "/check.jsp";
-    public static final String SHOP_JSP = "/shop.jsp";
-    public static final String CONTROLLER_JSP = "/controller.jsp";
-    public static final String AUTH_JSP = "/authorization.jsp";
-    public static final String ERROR_AUTH_JSP = "/authorization_error.jsp";
-    public static final String MAIL_MESS_JSP = "/mail_message.jsp";
-    public static final String ERROR_LOGIN = "/login_error.jsp";
-    public static final String ERROR_ADMIN = "/admin_access_error.jsp";
-    public static final String ADMIN_ADD_PRODUCT = "/admin_addproduct";
-    public static final String ADMIN_PRODUCT = "/admin_product";
-    public static final String ADMIN_USER = "/admin_user";
-    public static final String ADMIN_DEL_PRODUCT = "/admin_delproduct";
-
-    public static final String NAME = "name";
-    public static final String STOCK = "stock";
-    public static final String ITEM_ID = "itemId";
-    public static final String QUANTITY = "quantity";
-    public static final String FIRST_NAME = "firstName";
-    public static final String SECOND_NAME = "secondName";
-    public static final String AGE = "age";
-    public static final String MAIL = "mail";
-    public static final String COST = "cost";
     public static final String USER = "user";
+    public static final String ORDER = "order";
+    public static final String HTML = "html";
     public static final String USERS = "users";
-    public static final String USERTYPE = "userType";
-    public static final String MESSAGE = "message";
     public static final String PRODUCTS = "products";
-    public static final String PRODUCT_IS_EXIST = "Product is exist";
-    public static final String SUCCESS_ADD = "Succesfully added product ";
-    public static final String SUCCESS_DEL = "Succesfully deleted product with id ";
-    public static final String UPDATE_STOCK = "Updating stock product id ";
-    public static final String UPDATE_COST = "Update cost ";
-    public static final String FILL_FIELDS = "Fill all fields";
-    public static final String ENTER_COST = "Enter right cost ";
-    public static final String NO_PRODUCT = "No product with id ";
-    public static final String LOGIN = "login";
-    public static final String LOGIN_CHANGE = "logintochange";
-    public static final String ROLE = "role";
-    public static final String PASSWORD = "password";
-    public static final String ID = "id";
 }

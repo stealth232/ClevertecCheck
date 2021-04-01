@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <title>Check</title>
+</head>
+<body>
+<style>
+    .semi {
+        opacity: 0.5;
+    }
+</style>
+<div class="semi">
+    <pre> New version of checkService</pre>
+</div>
+<head>
+    <h2>
+        <pre><p>    CASH RECEIPT</p></pre>
+    </h2>
+</head>
+<h2>
+    <pre>   "The Two Geese"</pre>
+</h2>
+<p>
+<td th:text="${order.getDate()}"></td>
+</p>
+<table>
+    <thead>
+    <tr>
+        <th>QTY</th>
+        <th>PRODUCT</th>
+        <th>COST</th>
+        <th>TOTAL</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${order.getProducts()}">
+
+
+        <td th:text="${product.getQuantity()}"></td>
+        <td th:text="${product.getName()}"></td>
+        <td th:text="${product.getPrice()}"></td>
+        <td th:text="${T(java.lang.String).format('%.2f',product.getTotalPrice())}"></td>
+    </tr>
+    </tbody>
+</table>
+<div>
+    <th>========================</th>
+</div>
+<div th:if="${order.getCard() > 0}">
+    <div>
+        <td th:text="'Your card # ' + ${order.getCard()}+ ' with '+ ${T(java.lang.String).format('%.0f',order.getCardPercent())}+ '% discont'"></td>
+    </div>
+</div>
+<div th:if="${order.getCard() == 0}">
+    <div>
+        <td th:text="'No card  '"></td>
+    </div>
+</div>
+<div>
+    <td th:text="'Your Discount' + ${T(java.lang.String).format(' %.2f',order.getDiscount())}"></td>
+</div>
+<div>
+    <td th:text="'Total Price' + ${T(java.lang.String).format(' %.2f',order.getTotalPrice())}"></td>
+</div>
+
+<br/>
+<br/>
+<form action="/shopcontroller/mail_send" method="GET">
+    <tr>
+        <th>Enter your email</th>
+        <br/>
+        <td><input type="text" name="mail" placeholder="mail"></td>
+        <br/>
+        <td><input type="submit" value="Send"></td>
+    </tr>
+</form>
+<br/>
+<br/>
+<div class="semi">
+    <pre>        Old version of checkService</pre>
+</div>
+<td th:utext="${html}"></td>
+</body>
+</html>

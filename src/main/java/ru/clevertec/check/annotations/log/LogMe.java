@@ -1,7 +1,5 @@
 package ru.clevertec.check.annotations.log;
 
-import ru.clevertec.check.annotations.log.LogLevel;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

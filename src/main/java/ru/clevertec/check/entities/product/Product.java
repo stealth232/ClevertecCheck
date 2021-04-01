@@ -1,27 +1,31 @@
 package ru.clevertec.check.entities.product;
 
+import lombok.*;
 import ru.clevertec.check.entities.parameters.ProductParameters;
 
+import javax.validation.constraints.*;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 public class Product implements ProductParameters {
-    private int itemId;
+    private int id;
+
+    @NotBlank(message = "Product name is required")
+    @Size(min = 3, max = 20, message = "Product name must contains 3 - 20 symbols")
     private String name;
+
+    @NotNull
+    @DecimalMin(value = "0.01", message = "Min price is 0.01")
+    @DecimalMax(value = "1000.0", message = "Max price is 1000")
     private double cost;
+
+    @NotNull
     private boolean stock;
 
-    public Product(int itemId, String name, double cost, boolean stock) {
-        this.itemId = itemId;
-        this.name = name;
-        this.cost = cost;
-        this.stock = stock;
-    }
-
-    public Product(String name, double cost, boolean stock) {
-        this.name = name;
-        this.cost = cost;
-        this.stock = stock;
-    }
-    public void setItemId(int itemId) {
-        this.itemId = itemId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {
@@ -34,7 +38,7 @@ public class Product implements ProductParameters {
 
     @Override
     public int getItemId() {
-        return this.itemId;
+        return this.id;
     }
 
     @Override
@@ -60,11 +64,10 @@ public class Product implements ProductParameters {
     @Override
     public String toString() {
         return "Product{" +
-                "itemId=" + itemId +
+                "itemId=" + id +
                 ", name='" + name + '\'' +
                 ", cost=" + cost +
                 ", stock=" + stock +
                 '}';
     }
-
 }

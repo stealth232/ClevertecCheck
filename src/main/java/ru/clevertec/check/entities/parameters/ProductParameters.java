@@ -2,14 +2,14 @@ package ru.clevertec.check.entities.parameters;
 
 public interface ProductParameters {
 
-    public int getItemId();
+    int getItemId();
 
-    public String getName();
+    String getName();
 
-    public double getCost();
+    double getCost();
 
-    public boolean isStock();
+    boolean isStock();
 
-    public void setStock(boolean x);
+    void setStock(boolean x);
 
 }

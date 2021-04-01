@@ -1,37 +1,46 @@
 package ru.clevertec.check.entities.user;
 
-import java.util.Map;
+import lombok.*;
 
+import javax.validation.constraints.*;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 public class User {
     private int id;
+
+    @NotBlank(message = "Name must not be blank")
+    @Size(min = 2, max = 20, message = "Name must contains 2 - 20 symbols")
     private String firstName;
+
+    @NotBlank(message = "Second name must not be blank")
+    @Size(min = 2, max = 20, message = "Second name must contains 2 - 20 symbols")
     private String secondName;
+
+    @Min(value = 10, message = "Age must not be less than 10")
+    @Max(value = 150, message = "Age must not be greater than 150")
     private int age;
-    private Map<String, String> credentials;
+
+    @NotBlank(message = "Login must not be blank")
+    @Size(min = 2, max = 20, message = "Login must contains 2 - 20 symbols")
+    private String login;
+
+    @NotBlank(message = "Password must not be blank")
+    @Size(min = 3, message = "Password must contains min 6 symbols")
+    private String password;
+
     private UserType userType = UserType.USER;
 
-    public User(int id, String firstName, String secondName, int age, Map<String, String> credentials, UserType userType) {
-        this.id = id;
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.age = age;
-        this.credentials = credentials;
-        this.userType = userType;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    public User(String firstName, String secondName, int age, Map<String, String> credentials, UserType userType) {
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.age = age;
-        this.credentials = credentials;
-        this.userType = userType;
+    public void setPassword(String password) {
+        this.password = password;
     }
-    public User(String firstName, String secondName, int age, Map<String, String> credentials) {
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.age = age;
-        this.credentials = credentials;
-    }
+
     public int getId() {
         return id;
     }
@@ -64,20 +73,20 @@ public class User {
         this.age = age;
     }
 
-    public Map<String, String> getCredentials() {
-        return credentials;
-    }
-
-    public void setCredentials(Map<String, String> credentials) {
-        this.credentials = credentials;
-    }
-
     public UserType getUserType() {
         return userType;
     }
 
-    public void setUserType(UserType userType) {
-        this.userType = userType;
+    public void setUserType(String userType) {
+       this.userType = UserType.valueOf(userType);
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     @Override
@@ -87,7 +96,7 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", secondName='" + secondName + '\'' +
                 ", age=" + age +
-                ", credentials=" + credentials +
+                ", login=" + login +
                 ", userType=" + userType +
                 '}';
     }
