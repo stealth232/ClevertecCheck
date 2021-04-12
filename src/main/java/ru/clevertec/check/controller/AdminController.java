@@ -1,107 +1,73 @@
 package ru.clevertec.check.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.clevertec.check.entities.product.Product;
-import ru.clevertec.check.entities.user.User;
+import ru.clevertec.check.dto.ResponseData;
+import ru.clevertec.check.model.product.Product;
+import ru.clevertec.check.model.user.User;
 import ru.clevertec.check.service.ProductService;
 import ru.clevertec.check.service.UserService;
-import ru.clevertec.check.validators.ProductValidator;
 
-import javax.validation.Valid;
 import java.util.List;
 
-import static ru.clevertec.check.controller.constants.ServletConstants.PRODUCTS;
-import static ru.clevertec.check.controller.constants.ServletConstants.USERS;
-
-@Slf4j
-@AllArgsConstructor
-@Controller
+@RestController
+@EnableAutoConfiguration
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
-    private final ProductService productService;
     private final UserService userService;
-    private final ProductValidator productValidator;
+    private final ProductService productService;
 
-    @RequestMapping()
-    public String showAuthIndexPage() {
-        return "pages/admin";
+    @GetMapping("/users")
+    public ResponseData<List<User>> getUsers() {
+        return new ResponseData<>(userService.findAll());
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseData<?> deleteUser(@PathVariable Integer id) {
+        return new ResponseData<>(generateHttpStatus(userService.deleteUserById(id)));
+    }
+
+    @GetMapping("/users/{login}")
+    public ResponseData<User> getUserByLogin(@PathVariable String login) {
+        return new ResponseData<>(userService.getUserByLogin(login));
+    }
+
+    @PatchMapping("/users/{id}")
+    public ResponseData<?> changeRole(@PathVariable Integer id) {
+        return new ResponseData<>(generateHttpStatus(userService.changeRole(id)));
+    }
+
+    @PostMapping("/products")
+    public ResponseData<Product> saveProduct(@RequestBody Product product) {
+        return new ResponseData<>(productService.save(product));
     }
 
     @GetMapping("/products")
-    public String showProductPage(Model model) {
-        List<Product> products = productService.findAll();
-        model.addAttribute(PRODUCTS, products);
-        return "/pages/products";
+    public ResponseData<List<Product>> getProducts() {
+        return new ResponseData<>(productService.findAll());
     }
 
-    @DeleteMapping("/products/delete/{name}")
-    public String deleteProduct(@PathVariable String name) {
-        productService.deleteById(name);
-        return "redirect:/admin/products";
+    @PatchMapping("/products/{id}")
+    public ResponseData<?> changeStock(@PathVariable Integer id) {
+        return new ResponseData<>(generateHttpStatus(productService.changeStockById(id)));
     }
 
-    @PatchMapping("/products/setpromo/{name}")
-    public String editPromo(@PathVariable String name) {
-        productService.updateStockToTrue(name);
-        return "redirect:/admin/products";
+    @DeleteMapping("/products/{id}")
+    public ResponseData<?> deleteProduct(@PathVariable Integer id) {
+        return new ResponseData<>(generateHttpStatus(productService.deleteProductById(id)));
     }
 
-    @PatchMapping("/products/setnopromo/{name}")
-    public String editNoPromo(@PathVariable String name) {
-        productService.updateStockToFalse(name);
-        return "redirect:/admin/products";
+    @PutMapping("/products/cost/{id}")
+    public ResponseData<?> setCost(@RequestParam("cost") double cost,
+                                   @PathVariable Integer id) {
+        return new ResponseData<>(generateHttpStatus(productService.updateCost(cost, id)));
     }
 
-    @PatchMapping("/products/setprice/{name}")
-    public String setPrice(@RequestParam("cost") double cost,
-                           @PathVariable String name) {
-        productService.updateCost(name, cost);
-        return "redirect:/admin/products";
-    }
-
-    @ModelAttribute(value = "product")
-    public Product newProductEntity() {
-        return new Product();
-    }
-
-    @PostMapping("/products/addproduct")
-    public String addProduct(@ModelAttribute @Valid Product product,
-                             BindingResult bindingResult, Model model) {
-        productValidator.validate(product, bindingResult);
-        if (bindingResult.hasErrors()) {
-            List<Product> products = productService.findAll();
-            model.addAttribute(PRODUCTS, products);
-            return "pages/products";
-        }
-        productService.insert(product);
-        return "redirect:/admin/products";
-    }
-
-    @GetMapping("/users")
-    public String showUsersPage(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute(USERS, users);
-        return "pages/users";
-    }
-
-    @DeleteMapping("/users/delete/{login}")
-    public String deleteUser(@PathVariable String login, Model model) {
-        userService.deleteByLogin(login);
-        List<User> users = userService.findAll();
-        model.addAttribute(USERS, users);
-        return "redirect:/admin/users";
-    }
-
-    @PatchMapping("/users/edit/{id}")
-    public String changeRole(@PathVariable int id, Model model) {
-        userService.updateUserRole(id);
-        List<User> users = userService.findAll();
-        model.addAttribute(USERS, users);
-        return "redirect:/admin/users";
+    private HttpStatus generateHttpStatus(Integer result) {
+        if (result > 0) return HttpStatus.OK;
+        else return HttpStatus.NOT_MODIFIED;
     }
 }

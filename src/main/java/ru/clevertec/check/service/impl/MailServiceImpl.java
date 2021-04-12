@@ -12,7 +12,7 @@ import javax.mail.internet.*;
 import java.io.IOException;
 import java.util.Date;
 
-import static ru.clevertec.check.configuration.MailConfig.*;
+import static ru.clevertec.check.config.MailConfig.*;
 import static ru.clevertec.check.exception.ProductExceptionConstants.*;
 import static ru.clevertec.check.service.CheckConstants.CHECKFILEPDF;
 

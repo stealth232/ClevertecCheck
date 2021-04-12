@@ -2,8 +2,6 @@ package ru.clevertec.check.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.clevertec.check.annotations.log.LogLevel;
-import ru.clevertec.check.annotations.log.LogMe;
 import ru.clevertec.check.exception.ServiceException;
 import ru.clevertec.check.service.ArgsParserService;
 
@@ -11,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

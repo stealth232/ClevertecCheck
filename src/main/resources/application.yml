@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 123456
+  security:
+    user:
+      name: stealth23
+      password: 123456
+  jpa:
+   database: postgresql
+   generate-ddl: true
+   show-sql: true
+   hibernate:
+    ddl-auto: update
+   properties:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      jdbc:
+        lob:
+          non_contextual_creation: true
+

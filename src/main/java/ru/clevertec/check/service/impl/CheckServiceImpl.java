@@ -1,5 +1,6 @@
 package ru.clevertec.check.service.impl;
 
+import com.google.gson.Gson;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
@@ -9,29 +10,36 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.clevertec.check.dao.ProductDao;
-import ru.clevertec.check.entities.product.Card;
-import ru.clevertec.check.entities.product.Order;
-import ru.clevertec.check.entities.product.Product;
-import ru.clevertec.check.entities.product.SingleProduct;
+import ru.clevertec.check.dto.OrderRepository;
+import ru.clevertec.check.exception.ProductExceptionConstants;
 import ru.clevertec.check.exception.ServiceException;
+import ru.clevertec.check.model.DataOrder;
 import ru.clevertec.check.service.CheckService;
+import ru.clevertec.check.dto.ProductRepository;
+import ru.clevertec.check.model.product.Card;
+import ru.clevertec.check.model.product.Order;
+import ru.clevertec.check.model.product.Product;
+import ru.clevertec.check.model.product.SingleProduct;
+import ru.clevertec.check.service.PrintService;
+
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.*;
 
-import static ru.clevertec.check.exception.ProductExceptionConstants.*;
 import static ru.clevertec.check.service.CheckConstants.*;
 
 @AllArgsConstructor
 @Service
 public class CheckServiceImpl implements CheckService {
 
-    private final ProductDao productDao;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final PrintService printService;
+    private final Gson gson;
 
     @Override
-    public StringBuilder showCheck(Map<String, Integer> map) {
+    public StringBuilder getTXT(Map<String, Integer> map) throws ServiceException {
         StringBuilder sb = new StringBuilder();
         Order order = getOrder(map);
         sb.append("\n\n              CASH RECEIPT\n\n").
@@ -40,7 +48,7 @@ public class CheckServiceImpl implements CheckService {
                 append("QTY  DESCRIPTION            PRICE   TOTAL \n");
         sb.append(buildSingleProducts(map, OUTPUT_TXT));
         sb.append(TRANSFER);
-        sb.append(getCardTXT(order.getCard(), order.getTotalPrice(), order.getDiscount()));
+        sb.append(getCardTXT(order.getCard().getNumber(), order.getTotalPrice(), order.getDiscount()));
         return sb;
     }
 
@@ -55,7 +63,7 @@ public class CheckServiceImpl implements CheckService {
                 append("<h3><pre>QTY DESCRIPTION          PRICE   TOTAL </pre></h3>");
         stringBuilder.append(buildSingleProducts(map, OUTPUT_HTML));
         stringBuilder.append(TRANSFER_HTML).
-                append(getCardHTML(order.getCard(), order.getTotalPrice(), order.getDiscount())).
+                append(getCardHTML(order.getCard().getNumber(), order.getTotalPrice(), order.getDiscount())).
                 append(HTML_CLOSE);
         return stringBuilder;
     }
@@ -70,12 +78,12 @@ public class CheckServiceImpl implements CheckService {
                 append(TRANSPORT + "QTY        DESCRIPTION            PRICE         TOTAL \n");
         sb.append(buildSingleProducts(map, OUTPUT_PDF));
         sb.append(TRANSPORT + TRANSFER_PDF);
-        sb.append(getCardPDF(order.getCard(), order.getTotalPrice(), order.getDiscount()));
+        sb.append(getCardPDF(order.getCard().getNumber(), order.getTotalPrice(), order.getDiscount()));
         return sb;
     }
 
     public StringBuilder buildSingleProducts(Map<String, Integer> map, String format) {
-        List<Product> list = productDao.findAll();
+        List<Product> list = productRepository.findAll();
         StringBuilder sb = new StringBuilder();
         String key;
         int quantity;
@@ -118,6 +126,7 @@ public class CheckServiceImpl implements CheckService {
         double cardPercent = ZERO_INT;
         double totalPrice = ZERO_INT;
         double totalDiscount;
+        Order order = new Order();
         for (Map.Entry<String, Integer> entry : map.entrySet()
         ) {
             if (entry.getKey().equals(CARD)) {
@@ -135,51 +144,27 @@ public class CheckServiceImpl implements CheckService {
         }
         totalPrice = totalPrice * cardPercent;
         totalDiscount = totalPriceWODiscount - totalPrice;
-        return new Order(products, card, cardPercent, totalDiscount, totalPrice);
+        order.setProducts(products);
+        order.setCard(card);
+        order.setCardPercent(cardPercent);
+        order.setDiscount(totalDiscount);
+        order.setTotalPrice(totalPrice);
+        DataOrder dataOrder = new DataOrder();
+        dataOrder.setUserId(4);
+        dataOrder.setJson(gson.toJson(order));
+        orderRepository.save(dataOrder);
+        //gson.fromJson(orderRepository.findById(2).get().getJson(), Order.class);
+        return order;
+
     }
 
     @Override
-    public void printCheck(StringBuilder sb) throws ServiceException {
-        File file = new File(CHECKFILETXT);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(sb.toString());
-            writer.close();
-//            publisher.notify(CHECK_WAS_PRINTED_IN_TXT, CHECK_TXT);
-        } catch (IOException e) {
-            throw new ServiceException(IOEXCEPTION);
-        }
-    }
-
-    @Override
-    public void printPDFCheck(StringBuilder sb) throws ServiceException {
-        try {
-            FileOutputStream file = new FileOutputStream(CHECKFILEPDF);
-            Document document = new Document();
-            PdfWriter writer = PdfWriter.getInstance(document, file);
-            document.open();
-            document.newPage();
-            document.add(new Paragraph(THRIPLE_INDENT));
-            document.add(new Paragraph(sb.toString()));
-            PdfReader reader = new PdfReader(new FileInputStream(PDFTEMPLATE));
-            PdfImportedPage page = writer.getImportedPage(reader, PAGENUMBER);
-            PdfContentByte pdfContentByte = writer.getDirectContentUnder();
-            pdfContentByte.addTemplate(page, COORD_X, COORD_Y);
-            document.close();
-        } catch (DocumentException e) {
-            throw new ServiceException(DOCUMENT_EXCEPTION);
-        } catch (FileNotFoundException e) {
-            throw new ServiceException(NO_FILE_EXCEPTION);
-        } catch (IOException e) {
-            throw new ServiceException(IOEXCEPTION);
-        }
-    }
-
-    @Override
-    public Map<String, Integer> selectProducts(HttpServletRequest request){
-        List<Product> products = productDao.findAll();
+    public Map<String, Integer> selectProducts(HttpServletRequest request) {
+        List<Product> products = productRepository.findAll();
         Map<String, Integer> purchaseParameters = new HashMap<>();
         for (Product item : products) {
-            if (!request.getParameter(item.getName()).isBlank()) {
+            if (request.getParameter(item.getName()) != null &&
+                    !request.getParameter(item.getName()).isBlank()) {
                 purchaseParameters.put(item.getName(), Integer.parseInt(request.getParameter(item.getName())));
             }
         }
@@ -192,7 +177,7 @@ public class CheckServiceImpl implements CheckService {
     }
 
     private List<SingleProduct> getSingleProducts(Map<String, Integer> map) {
-        List<Product> list = productDao.findAll();
+        List<Product> list = productRepository.findAll();
         SingleProduct singleProduct;
         double totalPriceProduct;
         List<SingleProduct> products = new ArrayList<>();

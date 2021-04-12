@@ -58,4 +58,6 @@ public class CheckConstants {
     public static final String XML = "xml";
     public static final String BIN = "bin";
 
+    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
 }
